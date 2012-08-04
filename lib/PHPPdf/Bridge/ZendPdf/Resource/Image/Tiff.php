@@ -6,29 +6,29 @@
  * License information is in LICENSE file
  */
 
-namespace PHPPdf\Bridge\Zend\Pdf\Resource\Image;
+namespace PHPPdf\Bridge\ZendPdf\Resource\Image;
 
 use PHPPdf\InputStream\InputStream;
 use PHPPdf\InputStream\StringInputStream;
 use PHPPdf\InputStream\FopenInputStream;
-use Zend\Pdf\Resource\Image\Tiff as BaseTiff;
-use Zend\Pdf\Exception;
-use Zend\Pdf;
-use Zend\Pdf\InternalType;
+use ZendPdf\Resource\Image\Tiff as BaseTiff;
+use ZendPdf\Exception;
+use ZendPdf;
+use ZendPdf\InternalType;
 
 /**
  * Content loading type has been changed, remote files are supported.
- * 
+ *
  * @author Piotr Śliwa <peter.pl7@gmail.com>
  */
 class Tiff extends BaseTiff
 {
     private $stream;
-    
+
     public function __construct($imageFileName)
     {
         $isRemote = stripos($imageFileName, 'http') === 0;
-        
+
         if (($this->stream = $this->open($isRemote, $imageFileName)) === false ) {
             throw new Exception\IOException("Can not open '$imageFileName' file for reading.");
         }
@@ -260,7 +260,7 @@ class Tiff extends BaseTiff
 
         $this->close();
 
-        \Zend\Pdf\Resource\Image::__construct();
+        \ZendPdf\Resource\Image::__construct();
 
         $imageDictionary = $this->_resource->dictionary;
         if(!isset($this->_width) || !isset($this->_width)) {
@@ -294,20 +294,20 @@ class Tiff extends BaseTiff
         $this->_resource->value = $imageDataBytes;
         $this->_resource->skipFilters();
     }
-    
+
     private function open($isRemote, $imageFileName)
     {
-        try 
+        try
         {
             if($isRemote)
             {
                 $content = @file_get_contents($imageFileName);
-                
+
                 if($content === false)
                 {
                     return false;
                 }
-                
+
                 return new StringInputStream($content);
             }
             else
@@ -320,27 +320,27 @@ class Tiff extends BaseTiff
             return false;
         }
     }
-    
+
     private function seek($index, $seekMode = InputStream::SEEK_CUR)
     {
         return $this->stream->seek($index, $seekMode);
     }
-    
+
     private function read($length)
     {
         return $this->stream->read($length);
     }
-    
+
     private function close()
     {
         $this->stream->close();
     }
-    
+
     private function tell()
     {
         return $this->stream->tell();
     }
-    
+
     private function size()
     {
         return $this->stream->size();

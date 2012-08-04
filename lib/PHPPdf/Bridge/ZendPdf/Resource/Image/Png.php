@@ -6,42 +6,42 @@
  * License information is in LICENSE file
  */
 
-namespace PHPPdf\Bridge\Zend\Pdf\Resource\Image;
+namespace PHPPdf\Bridge\ZendPdf\Resource\Image;
 
 use PHPPdf\InputStream\FopenInputStream;
 use PHPPdf\InputStream\StringInputStream;
-use Zend\Pdf\Resource\Image\Png as BasePng;
-use Zend\Pdf\Exception;
-use Zend\Pdf;
-use Zend\Pdf\ObjectFactory;
-use Zend\Pdf\InternalType;
+use ZendPdf\Resource\Image\Png as BasePng;
+use ZendPdf\Exception;
+use ZendPdf;
+use ZendPdf\ObjectFactory;
+use ZendPdf\InternalType;
 
 /**
  * Content loading type has been changed, remote files are supported.
- * 
+ *
  * @author Piotr Śliwa <peter.pl7@gmail.com>
  */
 class Png extends BasePng
 {
     private $stream;
-    
+
     const PREDICATOR = 10;
-    
+
     public function __construct($imageFileName)
     {
         $isRemote = stripos($imageFileName, 'http') === 0;
-        
+
         if (($this->stream = $this->open($isRemote, $imageFileName)) === false ) {
-            
+
             throw new Exception\IOException("Can not open '$imageFileName' file for reading.");
         }
 
-        \Zend\Pdf\Resource\Image\AbstractImage::__construct();
-        
+        \ZendPdf\Resource\Image\AbstractImage::__construct();
+
         //Check if the file is a PNG
         $this->seek(1);
         if ('PNG' != $this->read(3)) {
-            
+
             throw new Exception\DomainException('Image is not a PNG');
         }
         $this->seek(12); //Signature bytes (Includes the IHDR chunk) IHDR processed linerarly because it doesnt contain a variable chunk length
@@ -129,7 +129,7 @@ class Png extends BasePng
                             // Fall through to the next case
 
                         case self::PNG_CHANNEL_RGB_ALPHA:
-                            
+
                             throw new Exception\CorruptedImageException("tRNS chunk illegal for Alpha Channel Images");
                             break;
                     }
@@ -144,7 +144,7 @@ class Png extends BasePng
                     break;
             }
         }
-        
+
         $this->close();
 
         $compressed = true;
@@ -276,7 +276,7 @@ class Png extends BasePng
             $this->_resource->skipFilters();
         }
     }
-    
+
     private function decode($imageData, $width, $colors, $bits)
     {
         $decodingObjFactory = ObjectFactory::createFactory(1);
@@ -291,20 +291,20 @@ class Png extends BasePng
 
         return $decodingStream->value;
     }
-    
+
     private function open($isRemote, $imageFileName)
     {
-        try 
+        try
         {
             if($isRemote)
             {
                 $content = @file_get_contents($imageFileName);
-                
+
                 if($content === false)
                 {
                     return false;
                 }
-                
+
                 return new StringInputStream($content);
             }
             else
@@ -317,17 +317,17 @@ class Png extends BasePng
             return false;
         }
     }
-    
+
     private function seek($index)
     {
         $this->stream->seek($index);
     }
-    
+
     private function read($length)
     {
         return $this->stream->read($length);
     }
-    
+
     private function close()
     {
         $this->stream->close();

@@ -12,7 +12,7 @@ use PHPPdf\Exception\InvalidArgumentException;
 
 use PHPPdf\Exception\InvalidResourceException;
 use PHPPdf\Core\Engine\AbstractFont;
-use Zend\Pdf\Font as ZendFont;
+use ZendPdf\Font as ZendFont;
 
 /**
  * @author Piotr Śliwa <peter.pl7@gmail.com>
@@ -20,11 +20,11 @@ use Zend\Pdf\Font as ZendFont;
 class Font extends AbstractFont
 {
     private $fonts = array();
-    
+
     /**
      * @internal Public method within PHPPdf\Core\Engine\ZF namespace
-     * 
-     * @return Zend\Pdf\Resource\Font
+     *
+     * @return ZendPdf\Resource\Font
      */
     public function getCurrentWrappedFont()
     {
@@ -43,28 +43,28 @@ class Font extends AbstractFont
                     $name = $this->retrieveFontName($data);
                     $this->fonts[$style] = ZendFont::fontWithName($name);
                 }
-                else 
+                else
                 {
                     $this->fonts[$style] = ZendFont::fontWithPath($data);
                 }
             }
-            
+
             return $this->fonts[$style];
         }
-        catch(\Zend\Pdf\Exception\ExceptionInterface $e)
+        catch(\ZendPdf\Exception\ExceptionInterface $e)
         {
             throw InvalidResourceException::invalidFontException($this->fontResources[$style], $e);
         }
     }
-    
+
     private function isNamedFont($fontData)
     {
         return strpos($fontData, '/') === false;
     }
-    
+
     private static function retrieveFontName($name)
     {
-        $const = sprintf('Zend\Pdf\Font::FONT_%s', str_replace('-', '_', strtoupper($name)));
+        $const = sprintf('ZendPdf\Font::FONT_%s', str_replace('-', '_', strtoupper($name)));
 
         if(!defined($const))
         {
@@ -77,14 +77,14 @@ class Font extends AbstractFont
     public function getWidthOfText($text, $fontSize)
     {
         $chars = $this->convertTextToChars($text);
-        
+
         $glyphs = $this->getCurrentWrappedFont()->glyphNumbersForCharacters($chars);
         $widths = $this->getCurrentWrappedFont()->widthsForGlyphs($glyphs);
         $textWidth = (array_sum($widths) / $this->getCurrentWrappedFont()->getUnitsPerEm()) * $fontSize;
 
         return $textWidth;
     }
-    
+
     private function convertTextToChars($text)
     {
         $length = strlen($text);
@@ -98,10 +98,10 @@ class Font extends AbstractFont
                 $chars[] = $char;
             }
         }
-        
+
         return $chars;
     }
-    
+
     /**
      * code from http://php.net/manual/en/function.ord.php#78032
      */
@@ -148,7 +148,7 @@ class Font extends AbstractFont
 
         return array($char, $bytes);
     }
-    
+
     public function getCurrentResourceIdentifier()
     {
         return isset($this->fontResources[$this->currentStyle]) ? $this->fontResources[$this->currentStyle] : $this->fontResources[self::STYLE_NORMAL];

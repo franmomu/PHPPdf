@@ -6,18 +6,18 @@
  * License information is in LICENSE file
  */
 
-namespace PHPPdf\Bridge\Zend\Pdf\Resource\Image;
+namespace PHPPdf\Bridge\ZendPdf\Resource\Image;
 
 use PHPPdf\InputStream\FopenInputStream;
 use PHPPdf\InputStream\StringInputStream;
-use Zend\Pdf\Resource\Image\AbstractImage;
-use Zend\Pdf\Resource\Image\Jpeg as BaseJpeg;
-use Zend\Pdf\InternalType;
-use Zend\Pdf\Exception;
+use ZendPdf\Resource\Image\AbstractImage;
+use ZendPdf\Resource\Image\Jpeg as BaseJpeg;
+use ZendPdf\InternalType;
+use ZendPdf\Exception;
 
 /**
  * Content loading type has been changed, remote files are supported.
- * 
+ *
  * @author Piotr Śliwa <peter.pl7@gmail.com>
  */
 class Jpeg extends BaseJpeg
@@ -67,7 +67,7 @@ class Jpeg extends BaseJpeg
         }
 
         $isRemote = stripos($imageFileName, 'http') === 0;
-       
+
         if (($stream = $this->open($isRemote, $imageFileName)) === false ) {
             throw new Exception\IOException("Can not open '$imageFileName' file for reading.");
         }
@@ -88,20 +88,20 @@ class Jpeg extends BaseJpeg
         $this->_imageProperties['jpegImageType'] = $imageInfo[2];
         $this->_imageProperties['jpegColorType'] = $imageInfo['channels'];
     }
-    
+
     private function open($isRemote, $imageFileName)
     {
-        try 
+        try
         {
             if($isRemote)
             {
                 $content = @file_get_contents($imageFileName);
-                
+
                 if($content === false)
                 {
                     return false;
                 }
-                
+
                 return new StringInputStream($content);
             }
             else

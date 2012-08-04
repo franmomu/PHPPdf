@@ -11,11 +11,11 @@ class FontTest extends \PHPPdf\PHPUnit\Framework\TestCase
 
     public function setUp()
     {
-        if(!class_exists('Zend\Pdf\PdfDocument', true))
+        if(!class_exists('ZendPdf\PdfDocument', true))
         {
             $this->fail('Zend Framework 2 library is missing. You have to download dependencies, for example by using "vendors.php" file.');
         }
-        
+
         $this->fontPath = TEST_RESOURCES_DIR;
 
         $this->font = new Font(array(
@@ -37,7 +37,7 @@ class FontTest extends \PHPPdf\PHPUnit\Framework\TestCase
 
         $this->font->setStyle(Font::STYLE_BOLD);
         $font = $this->font->getCurrentWrappedFont();
-        
+
         $this->assertTrue($font->isBold());
         $this->assertFalse($font->isItalic());
 
@@ -70,7 +70,7 @@ class FontTest extends \PHPPdf\PHPUnit\Framework\TestCase
     {
         $this->font->setStyle('bold');
         $font = $this->font->getCurrentWrappedFont();
-        
+
         $this->assertTrue($font->isBold());
         $this->assertFalse($font->isItalic());
 
@@ -84,7 +84,7 @@ class FontTest extends \PHPPdf\PHPUnit\Framework\TestCase
         $font = $this->font->getCurrentWrappedFont();
         $this->assertFalse($font->isBold() || $font->isItalic());
     }
-    
+
     /**
      * @test
      * @expectedException PHPPdf\Exception\InvalidResourceException
@@ -94,7 +94,7 @@ class FontTest extends \PHPPdf\PHPUnit\Framework\TestCase
         $font = new Font(array(
             Font::STYLE_NORMAL => 'some/unexisted/path.ttf',
         ));
-        
+
         $wrappedFont = $font->getCurrentWrappedFont();
     }
 
@@ -102,12 +102,12 @@ class FontTest extends \PHPPdf\PHPUnit\Framework\TestCase
      * @test
      */
     public function getWidthOfText()
-    {        
+    {
         $text = 'some text';
-        
+
         $width12 = $this->font->getWidthOfText($text, 12);
         $width14 = $this->font->getWidthOfText($text, 14);
-        
+
         $this->assertTrue($width12 > 0);
         $this->assertTrue($width14 > $width12);
     }

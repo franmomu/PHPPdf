@@ -16,8 +16,8 @@ use PHPPdf\Util;
 use PHPPdf\Exception\InvalidResourceException;
 use PHPPdf\Core\Engine\GraphicsContext as BaseGraphicsContext;
 use PHPPdf\Core\Engine\Engine as BaseEngine;
-use Zend\Pdf\PdfDocument;
-use Zend\Pdf\Outline\AbstractOutline;
+use ZendPdf\PdfDocument;
+use ZendPdf\Outline\AbstractOutline;
 
 /**
  * @author Piotr Śliwa <peter.pl7@gmail.com>
@@ -25,35 +25,35 @@ use Zend\Pdf\Outline\AbstractOutline;
 class Engine extends AbstractEngine
 {
     private static $loadedEngines = array();
-    
+
     private $zendPdf = null;
     private $colors = array();
     private $images = array();
     private $graphicsContexts = array();
     private $outlines = array();
-    
+
     public function __construct(PdfDocument $zendPdf = null, UnitConverter $unitConverter = null)
     {
         parent::__construct($unitConverter);
         $this->zendPdf = $zendPdf;
     }
-    
+
     public function createGraphicsContext($graphicsContextSize)
     {
         return new GraphicsContext($this, $graphicsContextSize);
     }
-    
+
     public function attachGraphicsContext(BaseGraphicsContext $gc)
     {
         $this->getZendPdf()->pages[] = $gc->getPage();
         $this->graphicsContexts[] = $gc;
     }
-    
+
     public function getAttachedGraphicsContexts()
     {
         return $this->graphicsContexts;
     }
-    
+
     /**
      * @return Image
      */
@@ -65,10 +65,10 @@ class Engine extends AbstractEngine
         {
             $this->images[$data] = new Image($data, $this->unitConverter);
         }
-        
+
         return $this->images[$data];
     }
-    
+
     /**
      * @return Font
      */
@@ -76,11 +76,11 @@ class Engine extends AbstractEngine
     {
         return new Font($fontData);
     }
-    
+
     public function render()
     {
         $this->getZendPdf()->properties['Producer'] = sprintf('PHPPdf %s', \PHPPdf\Version::VERSION);
-        
+
         foreach($this->graphicsContexts as $gc)
         {
             $gc->commit();
@@ -88,7 +88,7 @@ class Engine extends AbstractEngine
 
         return $this->getZendPdf()->render();
     }
-    
+
     /**
      * @return PdfDocument
      */
@@ -98,10 +98,10 @@ class Engine extends AbstractEngine
         {
             $this->zendPdf = new PdfDocument();
         }
-        
+
         return $this->zendPdf;
     }
-    
+
     /**
      * @internal
      */
@@ -109,7 +109,7 @@ class Engine extends AbstractEngine
     {
         $this->outlines[$id] = $outline;
     }
-    
+
     /**
      * @internal
      */
@@ -119,17 +119,17 @@ class Engine extends AbstractEngine
         {
             throw new RuntimeException(sprintf('Bookmark with id "%s" dosn\'t exist.', $id));
         }
-        
+
         return $this->outlines[$id];
     }
-    
+
     public function loadEngine($file)
     {
         if(isset(self::$loadedEngines[$file]))
         {
             return self::$loadedEngines[$file];
         }
-        
+
         if(!is_readable($file))
         {
             throw InvalidResourceException::fileDosntExistException($file);
@@ -139,23 +139,23 @@ class Engine extends AbstractEngine
         {
             $pdf = PdfDocument::load($file);
             $engine = new self($pdf, $this->unitConverter);
-            
+
             foreach($pdf->pages as $page)
             {
                 $gc = new GraphicsContext($engine, $page);
                 $engine->attachGraphicsContext($gc);
             }
-            
+
             self::$loadedEngines[$file] = $engine;
-            
+
             return $engine;
         }
-        catch(\Zend\Pdf\Exception $e)
+        catch(\ZendPdf\Exception $e)
         {
             throw InvalidResourceException::invalidPdfFileException($file, $e);
         }
     }
-    
+
     public function setMetadataValue($name, $value)
     {
         switch($name)
@@ -178,7 +178,7 @@ class Engine extends AbstractEngine
                 break;
         }
     }
-    
+
     public function reset()
     {
         $this->graphicsContexts = array();
